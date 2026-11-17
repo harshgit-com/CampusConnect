@@ -36,7 +36,7 @@ const notices = [
 ]
 
 function Brand() {
-  return <div className="brand"><div className="brand-mark"><span/><span/><span/></div><span>campus<span className="brand-light">connect</span><i>.</i></span></div>
+  return <div className="brand"><img className="brand-logo-image" src="/campusconnect-logo.png" alt="CampusConnect" onError={e => { e.currentTarget.style.display = "none" }} /><span>campus<span className="brand-light">connect</span><i>.</i></span></div>
 }
 function Avatar({ initials = 'HS', color = 'orange', size = '' }) {
   return <div className={`avatar ${color} ${size}`}>{initials}</div>
@@ -44,7 +44,7 @@ function Avatar({ initials = 'HS', color = 'orange', size = '' }) {
 function SectionTitle({ eyebrow, title, action, onAction }) {
   return <div className="section-title"><div>{eyebrow && <div className="eyebrow">{eyebrow}</div>}<h2>{title}</h2></div>{action && <button className="text-action" onClick={onAction}>{action}<ArrowRight size={15}/></button>}</div>
 }
-function App() {
+function App({ user, onSignOut }) {
   const [active, setActive] = useState('Overview')
   const [query, setQuery] = useState('')
   const [showUpload, setShowUpload] = useState(false)
@@ -69,7 +69,7 @@ function App() {
       <div className="sidebar-bottom">
         <div className="upgrade-card"><div className="upgrade-icon"><Sparkles size={16}/></div><strong>Make campus yours.</strong><p>Find your people. Build something great.</p><button onClick={() => go('Discover')}>Explore community <ArrowUpRight size={14}/></button></div>
         <button className="nav-item" onClick={() => notify('Settings are coming soon.')}><Settings2 size={18}/>Settings</button>
-        <div className="user-mini" onClick={() => setProfileOpen(!profileOpen)}><Avatar/><div><strong>Harsh Solanki</strong><small>Student account</small></div><MoreHorizontal size={18}/></div>
+        <div className="user-mini" onClick={() => setProfileOpen(!profileOpen)}><Avatar/><div><strong>{user?.displayName || "Student"}</strong><small>{user?.email || "Student account"}</small></div><MoreHorizontal size={18}/></div>
       </div>
     </aside>
     {mobileNav && <div className="scrim" onClick={() => setMobileNav(false)}/>}
@@ -85,9 +85,9 @@ function App() {
           <button className="top-avatar" onClick={() => setProfileOpen(!profileOpen)}><Avatar size="small"/></button>
         </div>
       </header>
-      {profileOpen && <div className="profile-pop"><strong>Harsh Solanki</strong><small>Student profile</small><button onClick={() => notify('Profile editing is coming soon.')}>View profile <ArrowRight size={14}/></button></div>}
+      {profileOpen && <div className="profile-pop"><strong>{user?.displayName || "Student"}</strong><small>{user?.email}</small><button onClick={() => notify('Profile editing is coming soon.')}>View profile <ArrowRight size={14}/></button><button className="signout-action" onClick={onSignOut}>Sign out <ArrowRight size={14}/></button></div>}
       <div className="page-content">
-        {active === 'Overview' ? <Dashboard {...{filteredNotes, joined, setJoined, saved, setSaved, setShowUpload, go, notify, query}}/> :
+        {active === 'Overview' ? <Dashboard {...{filteredNotes, joined, setJoined, saved, setSaved, setShowUpload, go, notify, query, user}}/> :
           active === 'Notes library' ? <NotesPage {...{filteredNotes, saved, setSaved, setShowUpload, query, filter, setFilter, notify}}/> :
           active === 'Notice board' ? <NoticePage/> :
           active === 'Study groups' ? <GroupsPage {...{joined,setJoined,notify}}/> :
@@ -101,9 +101,9 @@ function App() {
   </div>
 }
 
-function Dashboard({filteredNotes, joined, setJoined, saved, setSaved, setShowUpload, go, notify, query}) {
+function Dashboard({filteredNotes, joined, setJoined, saved, setSaved, setShowUpload, go, notify, query, user}) {
   return <>
-    <div className="welcome-row"><div><div className="eyebrow"><span className="live-dot"/> WEDNESDAY, 18 NOVEMBER 2026</div><h1>Your campus,<br/><em>your community.</em></h1><p className="welcome-copy">Good morning, Harsh. Here's what's happening around your campus.</p></div><div className="welcome-actions"><button className="secondary-btn" onClick={() => go('Discover')}><Compass size={16}/> Explore campus</button><button className="primary-btn" onClick={() => setShowUpload(true)}><Plus size={17}/> Share a resource</button></div></div>
+    <div className="welcome-row"><div><div className="eyebrow"><span className="live-dot"/> WEDNESDAY, 18 NOVEMBER 2026</div><h1>Your campus,<br/><em>your community.</em></h1><p className="welcome-copy">Good morning, {user?.displayName?.split(" ")[0] || "there"}. Here's what's happening around your campus.</p></div><div className="welcome-actions"><button className="secondary-btn" onClick={() => go('Discover')}><Compass size={16}/> Explore campus</button><button className="primary-btn" onClick={() => setShowUpload(true)}><Plus size={17}/> Share a resource</button></div></div>
     <div className="hero-banner"><div className="hero-copy"><div className="hero-kicker"><Sparkles size={13}/> THE CAMPUSCONNECT COMMUNITY</div><h2>Big things happen<br/>when students <span>connect.</span></h2><p>A space to learn together, share what you know and find the people who get it.</p><button onClick={() => go('Discover')}>Find your community <ArrowRight size={16}/></button></div><div className="hero-art"><div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="hero-glow"/><div className="hero-symbol"><Users size={48}/></div><div className="float-chip chip-one"><span className="chip-dot orange-dot"/> Ideas in motion</div><div className="float-chip chip-two"><span className="chip-dot green-dot"/> Better, together</div><div className="float-chip chip-three"><Zap size={13}/> Your next big thing</div></div><div className="hero-index">01 <span>/ 03</span></div></div>
     <div className="stats-grid"><Stat icon={Users} label="Your community" value="Find your people" note="Across multiple campuses" tone="orange"/><Stat icon={BookOpen} label="Knowledge shared" value="Open library" note="Notes from students" tone="blue"/><Stat icon={Activity} label="Campus pulse" value="Stay in the loop" note="Updates that matter" tone="green"/></div>
     <div className="content-grid">
